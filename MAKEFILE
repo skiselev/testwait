@@ -1,0 +1,21 @@
+##########################################################################
+# Makefile for testwait
+#
+# Copyright (c) 2021 Sergey Kiselev
+# Distributed under the terms of the GNU General Public License
+#
+# Usage:  make -B         # build
+#         make -B -DDEBUG # build with debug info
+##########################################################################
+
+!if $d(DEBUG)
+TASMDEBUG=/zi
+LINKDEBUG=/v
+!else
+TASMDEBUG=
+LINKDEBUG=
+!endif
+
+testwait.exe:	testwait.asm
+      tasm  $(TASMDEBUG) /l testwait.asm
+      tlink $(LINKDEBUG) testwait.obj

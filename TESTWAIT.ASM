@@ -92,20 +92,31 @@ start:		mov	ax,@data
 		call	print
 		mov	al,01h		; failure - unsupported CPU
 		jmp	exit
+
+;-------------------------------------------------------------------------
+; set parameters for Intel 8088 CPU
 intel_8088:
 		mov	byte ptr [cpu_has_insb],0
 		mov	word ptr [lodsb_cycles],i88_lodsb_cycl
 		mov	word ptr [insb_cycles],i88_insb_cycl
 		jmp	print_cpu
+
+;-------------------------------------------------------------------------
+; set parameters for NEC V20 CPU
 nec_v20:
 		mov	byte ptr [cpu_has_insb],1
 		mov	word ptr [lodsb_cycles],v20_lodsb_cycl
 		mov	word ptr [insb_cycles],v20_insb_cycl
+
 print_cpu:
 		call	print		; print CPU type
+
+;-------------------------------------------------------------------------
 ; run the measurements
 		mov	si,offset msg_run_tests
 		call	print
+
+;-------------------------------------------------------------------------
 ; measure main memory read speed
 		mov	si,offset test_area
 		call	test_mem_read	; measure memory read speed
@@ -117,9 +128,8 @@ print_cpu:
 		div	cx
 		dec	ax		; dec by 1 to avoid rounding errors
 		mov	word ptr [main_memr_time],ax
-		call	print_dec
-		mov	si,offset msg_coma
-		call	print
+
+;-------------------------------------------------------------------------
 ; measure video memory read speed
 		push	ds
 		mov	ah,0Fh		; Int 10 function 0Fh - get video mode
@@ -152,6 +162,8 @@ test_video:
 		div	cx
 		sub	ax,word ptr [lodsb_cycles]
 		mov	word ptr [vid_memr_ws],ax
+
+;-------------------------------------------------------------------------
 ; measure BIOS ROM read speed
 		push	ds
 		mov	ax,0FC00h
@@ -167,6 +179,8 @@ test_video:
 		div	cx
 		sub	ax,word ptr [lodsb_cycles]
 		mov	word ptr [bios_memr_ws],ax
+
+;-------------------------------------------------------------------------
 ; measure on-board I/O read speed
 		mov	dx,61h		; use PORT B as the source
 		mov	di,offset test_area
@@ -179,6 +193,8 @@ test_video:
 		div	cx
 		sub	ax,word ptr [insb_cycles]
 		mov	word ptr [board_ior_ws],ax
+
+;-------------------------------------------------------------------------
 ; measure COM1 MSR I/O read speed
 		mov	dx,3F8h+6	; COM1 MSR
 		mov	di,offset test_area
@@ -191,6 +207,8 @@ test_video:
 		div	cx
 		sub	ax,word ptr [insb_cycles]
 		mov	word ptr [com1_ior_ws],ax
+
+;-------------------------------------------------------------------------
 ; print the results
 ;		mov	al,03h		; turn off turbo
 ;		out	63h,al		; write chipset control register
